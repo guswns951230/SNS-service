@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import AppRouter from "components/Router";
-import { authService } from "fbase";
+import { authService } from "../fbase";
+import AppRouter from "../components/AppRouter";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(authService.currentUser);
