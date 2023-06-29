@@ -1,33 +1,36 @@
 import React, { useEffect, useState } from "react";
-import { dbAddDoc, dbCollection, dbGetDocs, dbService } from "../fbase";
+import {
+  dbAddDoc,
+  dbCollection,
+  dbGetDocs,
+  dbOnSnapshot,
+  dbService,
+} from "../fbase";
+import { query } from "firebase/firestore";
 
-const Home = () => {
+const Home = ({ userObj }) => {
   const [kweet, setKweet] = useState("");
   const [kweets, setKweets] = useState([]);
 
-  const getKweets = async () => {
-    const dbKweets = await dbGetDocs(dbCollection(dbService, "kweets"));
-    dbKweets.forEach((document) => {
-      // kweet 객체 생성
-      const kweetObject = {
-        ...document.data(),
-        id: document.id,
-      };
-      // 모든 이전 kweets에 대해 배열(새로 작성한 kweet과 그 이전 것들)을 return
-      setKweets((prev) => [kweetObject, ...prev]);
-    });
-  };
-
   useEffect(() => {
-    getKweets();
+    const q = query(dbCollection(dbService, "kweets"));
+    dbOnSnapshot(q, (snapshot) => {
+      const kweetArray = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      console.log(kweetArray);
+      setKweets(kweetArray);
+    });
   }, []);
 
   const onSubmitForm = async (event) => {
     event.preventDefault();
     try {
       const docRef = await dbAddDoc(dbCollection(dbService, "kweets"), {
-        kweet,
+        text: kweet,
         createdAt: Date.now(),
+        creatorId: userObj.uid,
       });
       console.log("Document written with ID : ", docRef);
     } catch (error) {
@@ -42,8 +45,6 @@ const Home = () => {
     } = event;
     setKweet(value);
   };
-
-  console.log(kweets);
 
   return (
     <div>
@@ -60,7 +61,7 @@ const Home = () => {
       <div>
         {kweets.map((kweet) => (
           <div key={kweet.id}>
-            <h4>{kweet.kweet}</h4>
+            <h4>{kweet.text}</h4>
           </div>
         ))}
       </div>
