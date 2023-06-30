@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import {
   dbAddDoc,
   dbCollection,
   dbGetDocs,
   dbOnSnapshot,
   dbService,
+  storageService,
 } from "../fbase";
 import { query } from "firebase/firestore";
 import Kweet from "../components/Kweet";
+import { ref, uploadString } from "firebase/storage";
 
 const Home = ({ userObj }) => {
   const [kweet, setKweet] = useState("");
@@ -28,17 +31,20 @@ const Home = ({ userObj }) => {
 
   const onSubmitForm = async (event) => {
     event.preventDefault();
-    try {
-      const docRef = await dbAddDoc(dbCollection(dbService, "kweets"), {
-        text: kweet,
-        createdAt: Date.now(),
-        creatorId: userObj.uid,
-      });
-      console.log("Document written with ID : ", docRef);
-    } catch (error) {
-      console.error("Error adding document : ", error);
-    }
-    setKweet("");
+    const fileRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
+    const response = await uploadString(fileRef, attachment, "data_url");
+    console.log(response);
+    // try {
+    //   const docRef = await dbAddDoc(dbCollection(dbService, "kweets"), {
+    //     text: kweet,
+    //     createdAt: Date.now(),
+    //     creatorId: userObj.uid,
+    //   });
+    //   console.log("Document written with ID : ", docRef);
+    // } catch (error) {
+    //   console.error("Error adding document : ", error);
+    // }
+    // setKweet("");
   };
 
   const onChangeInput = (event) => {

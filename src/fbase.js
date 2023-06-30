@@ -2,6 +2,7 @@
 // import "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 import {
   addDoc,
   collection,
@@ -27,7 +28,8 @@ export const firebaseInstance = firebaseConfig;
 
 // 인증
 export const authService = getAuth();
-
+// fire storage
+export const storageService = getStorage();
 // fire store
 export const dbService = getFirestore();
 export const dbAddDoc = addDoc;
