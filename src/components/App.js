@@ -27,7 +27,6 @@ function App() {
       ) : (
         "Initializing..."
       )}
-      <footer>&copy; SNS {new Date().getFullYear()}</footer>
     </div>
   );
 }
