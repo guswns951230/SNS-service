@@ -53,6 +53,14 @@ const Kweet = ({ kweetObj, isOwner }) => {
       ) : (
         <>
           <h4>{kweetObj.text}</h4>
+          {kweetObj.attachmentUrl && (
+            <img
+              src={kweetObj.attachmentUrl}
+              alt="image file"
+              width="50px"
+              height="50px"
+            />
+          )}
           {isOwner && (
             <>
               <button onClick={onDeleteClick}>Delete Kweet</button>

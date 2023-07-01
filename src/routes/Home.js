@@ -3,19 +3,18 @@ import { v4 as uuidv4 } from "uuid";
 import {
   dbAddDoc,
   dbCollection,
-  dbGetDocs,
   dbOnSnapshot,
   dbService,
   storageService,
 } from "../fbase";
 import { query } from "firebase/firestore";
 import Kweet from "../components/Kweet";
-import { ref, uploadString } from "firebase/storage";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 
 const Home = ({ userObj }) => {
   const [kweet, setKweet] = useState("");
   const [kweets, setKweets] = useState([]);
-  const [attachment, setAttachment] = useState();
+  const [attachment, setAttachment] = useState("");
 
   useEffect(() => {
     const q = query(dbCollection(dbService, "kweets"));
@@ -31,20 +30,25 @@ const Home = ({ userObj }) => {
 
   const onSubmitForm = async (event) => {
     event.preventDefault();
-    const fileRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
-    const response = await uploadString(fileRef, attachment, "data_url");
-    console.log(response);
-    // try {
-    //   const docRef = await dbAddDoc(dbCollection(dbService, "kweets"), {
-    //     text: kweet,
-    //     createdAt: Date.now(),
-    //     creatorId: userObj.uid,
-    //   });
-    //   console.log("Document written with ID : ", docRef);
-    // } catch (error) {
-    //   console.error("Error adding document : ", error);
-    // }
-    // setKweet("");
+    let attachmentUrl = "";
+    if (attachment !== "") {
+      const attachmentRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
+      const response = await uploadString(
+        attachmentRef,
+        attachment,
+        "data_url"
+      );
+      attachmentUrl = await getDownloadURL(response.ref);
+    }
+    const kweetObj = {
+      text: kweet,
+      createdAt: Date.now(),
+      creatorId: userObj.uid,
+      attachmentUrl,
+    };
+    await dbAddDoc(dbCollection(dbService, "kweets"), kweetObj);
+    setKweet("");
+    setAttachment("");
   };
 
   const onChangeInput = (event) => {
@@ -69,7 +73,7 @@ const Home = ({ userObj }) => {
     reader.readAsDataURL(theFile);
   };
 
-  const onClearAttachment = () => setAttachment(null);
+  const onClearAttachment = () => setAttachment("");
 
   return (
     <div>
@@ -85,7 +89,7 @@ const Home = ({ userObj }) => {
         <input type="submit" value="Kweet" />
         {attachment && (
           <div>
-            <img src={attachment} width="50px" height="50px" />
+            <img src={attachment} alt="image file" width="50px" height="50px" />
             <button onClick={onClearAttachment}>Clear</button>
           </div>
         )}
