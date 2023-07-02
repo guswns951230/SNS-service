@@ -3,6 +3,9 @@ import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { dbService, storageService } from "../fbase";
 import { deleteObject, ref } from "firebase/storage";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash, faPencilAlt } from "@fortawesome/free-solid-svg-icons";
+
 const Kweet = ({ kweetObj, isOwner }) => {
   // editing mode인지 아닌지를 판단
   const [editing, setEditing] = useState(false);
@@ -13,12 +16,20 @@ const Kweet = ({ kweetObj, isOwner }) => {
   const urlRef = ref(storageService, kweetObj.attachmentUrl);
 
   const onDeleteClick = async () => {
-    const ok = window.confirm("Are you sure you want to delete this kweet?");
-    console.log(ok);
+    const ok = window.confirm("정말 이 kweet을 삭제하시겠습니까?");
+
     if (ok) {
-      // delete kweet
-      await deleteDoc(kweetTextRef);
-      await deleteObject(urlRef);
+      try {
+        // 해당하는 kweet을 firestore에서 삭제
+        await deleteDoc(kweetTextRef);
+
+        // 삭제하려는 kweet에 img file이 있는 경우 storage에서 삭제
+        if (kweetObj.attachmentUrl !== "") {
+          await deleteObject(urlRef);
+        }
+      } catch (error) {
+        window.alert("kweet을 삭제하는 데 실패했습니다.");
+      }
     }
   };
 
@@ -39,37 +50,40 @@ const Kweet = ({ kweetObj, isOwner }) => {
   };
 
   return (
-    <div>
+    <div className="kweet">
       {editing ? (
         <>
-          <form onSubmit={onSubmitForm}>
+          <form onSubmit={onSubmitForm} className="container kweetEdit">
             <input
               type="text"
               placeholder="Edit your kweet"
               value={newKweet}
               required
+              autoFocus
               onChange={onChangeEdit}
+              className="formInput"
             />
-            <input type="submit" value="Update Kweet" />
+            <input type="submit" value="Update Kweet" className="formBtn" />
           </form>
-          <button onClick={toggleEditing}>Cancel</button>
+          <span onClick={toggleEditing} className="formBtn cancelBtn">
+            Cancel
+          </span>
         </>
       ) : (
         <>
           <h4>{kweetObj.text}</h4>
           {kweetObj.attachmentUrl && (
-            <img
-              src={kweetObj.attachmentUrl}
-              alt="image file"
-              width="50px"
-              height="50px"
-            />
+            <img src={kweetObj.attachmentUrl} alt="image file" />
           )}
           {isOwner && (
-            <>
-              <button onClick={onDeleteClick}>Delete Kweet</button>
-              <button onClick={toggleEditing}>Edit Kweet</button>
-            </>
+            <div className="kweet__actions">
+              <span onClick={onDeleteClick}>
+                <FontAwesomeIcon icon={faTrash} />
+              </span>
+              <span onClick={toggleEditing}>
+                <FontAwesomeIcon icon={faPencilAlt} />
+              </span>
+            </div>
           )}
         </>
       )}

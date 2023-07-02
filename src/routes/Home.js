@@ -3,7 +3,7 @@ import { dbCollection, dbOnSnapshot, dbService } from "../fbase";
 import { query } from "firebase/firestore";
 
 import Kweet from "../components/Kweet";
-import KweetForm from "../components/kweetForm";
+import KweetForm from "../components/KweetForm";
 
 const Home = ({ userObj }) => {
   const [kweets, setKweets] = useState([]);
@@ -21,9 +21,9 @@ const Home = ({ userObj }) => {
   }, []);
 
   return (
-    <div>
+    <div className="container">
       <KweetForm userObj={userObj} />
-      <div>
+      <div style={{ marginTop: 30 }}>
         {kweets.map((kweet) => (
           <Kweet
             key={kweet.id}
