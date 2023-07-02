@@ -13,12 +13,18 @@ import Navigation from "./navigation";
 const AppRouter = ({ isLoggedIn, userObj }) => {
   return (
     <Router>
-      {isLoggedIn && <Navigation />}
+      {isLoggedIn && <Navigation userObj={userObj} />}
       <Routes>
         {isLoggedIn ? (
           <>
             <Route exact path="/" element={<Home userObj={userObj} />} />
-            <Route exact path="/profile" replace to="/" element={<Profile />} />
+            <Route
+              exact
+              path="/profile"
+              replace
+              to="/"
+              element={<Profile userObj={userObj} />}
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
         ) : (
