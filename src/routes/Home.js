@@ -1,22 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { dbCollection, dbOnSnapshot, dbService } from "../fbase";
+import { authService, dbCollection, dbOnSnapshot, dbService } from "../fbase";
 import { query } from "firebase/firestore";
 
 import Kweet from "../components/Kweet";
 import KweetForm from "../components/KweetForm";
+import { onAuthStateChanged } from "firebase/auth";
 
 const Home = ({ userObj }) => {
   const [kweets, setKweets] = useState([]);
 
   useEffect(() => {
     const q = query(dbCollection(dbService, "kweets"));
-    dbOnSnapshot(q, (snapshot) => {
+    const unsubscribe = dbOnSnapshot(q, (snapshot) => {
       const kweetArray = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      console.log(kweetArray);
       setKweets(kweetArray);
+    });
+
+    onAuthStateChanged(authService, (user) => {
+      if (user == null) {
+        unsubscribe();
+      }
     });
   }, []);
 
