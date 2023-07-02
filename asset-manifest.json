@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/SNS-service/static/css/main.9a0d398e.css",
+    "main.js": "/SNS-service/static/js/main.cba984bf.js",
+    "index.html": "/SNS-service/index.html",
+    "main.9a0d398e.css.map": "/SNS-service/static/css/main.9a0d398e.css.map",
+    "main.cba984bf.js.map": "/SNS-service/static/js/main.cba984bf.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9a0d398e.css",
+    "static/js/main.cba984bf.js"
+  ]
+}
