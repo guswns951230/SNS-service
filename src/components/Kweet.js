@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { dbService } from "../fbase";
+import { dbService, storageService } from "../fbase";
+import { deleteObject, ref } from "firebase/storage";
 
 const Kweet = ({ kweetObj, isOwner }) => {
   // editing mode인지 아닌지를 판단
@@ -9,12 +10,15 @@ const Kweet = ({ kweetObj, isOwner }) => {
   const [newKweet, setNewKweet] = useState(kweetObj.text);
 
   const kweetTextRef = doc(dbService, "kweets", `${kweetObj.id}`);
+  const urlRef = ref(storageService, kweetObj.attachmentUrl);
+
   const onDeleteClick = async () => {
     const ok = window.confirm("Are you sure you want to delete this kweet?");
     console.log(ok);
     if (ok) {
       // delete kweet
       await deleteDoc(kweetTextRef);
+      await deleteObject(urlRef);
     }
   };
 
